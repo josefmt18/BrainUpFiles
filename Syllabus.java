@@ -6,12 +6,6 @@ public class Syllabus {
 	private double HWWeight;
 	private double labWeight;
 	private double otherWeight;
-	
-	private int numExams;
-	private int numQuizes;
-	private int numHW;
-	private int numLabs;
-	private int numOther;
 
 	Syllabus() {
 	}
@@ -70,46 +64,6 @@ public class Syllabus {
 
 	public void setOtherWeight(double otherWeight) {
 		this.otherWeight = otherWeight;
-	}
-	
-	public int getNumExams() {
-		return numExams;
-	}
-
-	public void setNumExams(int numExams) {
-		this.numExams = numExams;
-	}
-
-	public int getNumQuizes() {
-		return numQuizes;
-	}
-
-	public void setNumQuizes(int numQuizes) {
-		this.numQuizes = numQuizes;
-	}
-
-	public int getNumHW() {
-		return numHW;
-	}
-
-	public void setNumHW(int numHW) {
-		this.numHW = numHW;
-	}
-
-	public int getNumLabs() {
-		return numLabs;
-	}
-
-	public void setNumLabs(int numLabs) {
-		this.numLabs = numLabs;
-	}
-
-	public int getNumOther() {
-		return numOther;
-	}
-
-	public void setNumOther(int numOther) {
-		this.numOther = numOther;
 	}
 
 	public double getWeight(char type){

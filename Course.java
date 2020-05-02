@@ -7,6 +7,7 @@ public class Course {
 	private Professor prof;
 	private Syllabus classSyllabus;
 	
+	//constructors
 	Course(){
 	}
 	
@@ -14,8 +15,10 @@ public class Course {
 		this.courseName = courseName;
 		this.courseNum = courseNum;
 		this.prof = prof;
+		this.classSyllabus = new Syllabus(0,0,0,0,0);
 	}
 
+	//getters and setters
 	public String getCourseName() {
 		return courseName;
 	}
@@ -65,6 +68,7 @@ public class Course {
 	}
 	/*************************************************************************************/
 	
+	//adds new student to student list
 	public void enrollStudent(String studentName){
 		for(int i = 0; i < this.studentList.size(); i++){
 			if(this.studentList.get(i).getUsername().equals(studentName)){
@@ -72,9 +76,11 @@ public class Course {
 				return;
 			}
 		}
-		this.studentList.add(new Student(studentName));
+		this.studentList.add(new Student("", studentName));
+		//System.out.println("student enrolled: " + studentName);
 	}
 	
+	//removes student from student list
 	public void dropStudent(String studentName){
 		for(int i = 0; i < this.studentList.size(); i++){
 			if(this.studentList.get(i).getUsername().equals(studentName)){
@@ -85,85 +91,241 @@ public class Course {
 		System.out.println(studentName + " is not in " + this.courseName);
 	}
 	
-	public ArrayList<Assignment> getStudentAssignments(String userStudent){
+	//returns all assignments belonging to a specific student
+	public ArrayList<Assignment> getStudentAssignments(String studentName){
 		ArrayList<Assignment> studentGrades = new ArrayList<Assignment>();
-		
+				
 		for(int i = 0; i < this.assignmentList.size(); i++){
 			
-			if(this.assignmentList.get(i).get(0).getAssignmentName().equals(userStudent)){
-				for(int j = 0; j < this.assignmentList.get(i).size(); j++){
-					
-					if(this.assignmentList.get(i).get(j).getStudentName().equals(userStudent)){
-						studentGrades.add(this.assignmentList.get(i).get(j));
-					}
+			for(int j = 0; j < this.assignmentList.get(i).size(); j++){
+				
+				if(this.assignmentList.get(i).get(j).getStudentName().equals(studentName)){
+					studentGrades.add(this.assignmentList.get(i).get(j));
 				}
 			}
+			
 		}
 		
 		return studentGrades;
 	}
 	
-	public void gradeAssignment(String userStudent, int grade){
+	//gets all assignments for specific assignment
+	public ArrayList<Assignment> getAssignment(String assignmentName){
 		for(int i = 0; i < this.assignmentList.size(); i++){
-			
-			if(this.assignmentList.get(i).get(0).getAssignmentName().equals(userStudent)){
-				for(int j = 0; j < this.assignmentList.get(i).size(); j++){
-					
-					if(this.assignmentList.get(i).get(j).getStudentName().equals(userStudent)){
-						this.assignmentList.get(i).get(j).setReceivedGrade(grade);
-						return;
-					}
-				}
+			if(this.assignmentList.get(i).get(0).getAssignmentName().equals(assignmentName)){
+				return this.assignmentList.get(i);
+			}
+		}
+		return null;
+	}
+	
+	//updates the received grade for a specific student on a specific assignment
+	public void gradeAssignment(String studentName, String assignmentName, int grade){
+		ArrayList<Assignment> assignments = getAssignment(assignmentName);
+		Assignment newAssignment = new Assignment(studentName, assignmentName, assignments.get(0).getAssignmentType(), assignments.get(0).getMaxGrade());
+		newAssignment.setReceivedGrade(grade);
+		assignments.add(newAssignment);
+	}
+	
+	//changes grade for specific student
+	public void changeAssignmentGrade(String studentName, String assignmentName, int grade){
+		ArrayList<Assignment> assignments = getAssignment(assignmentName);
+		for(int i = 0; i < assignments.size(); i++){
+			if(assignments.get(0).getStudentName().equals(studentName)){
+				assignments.get(0).setReceivedGrade(grade);
 			}
 		}
 	}
 	
+	//adds new assignment node to asignment list
 	public void createNewAssignment(String assignmentName, char assignmentType, int maxGrade){
 		ArrayList<Assignment> newAssignment = new ArrayList<Assignment>();
-		newAssignment.add(new Assignment(assignmentName, assignmentType, maxGrade));
+		newAssignment.add(new Assignment("", assignmentName, assignmentType, maxGrade));
 		
 		this.assignmentList.add(newAssignment);
 	}
 	
-	public double getStudentGrade(String userStudent){
+	//returns the grade of a student for all assignments
+	public double getClassAvg(){
 		double finalGrade = 0, exams = 0, quizzes = 0, HW = 0, labs = 0, other = 0;
+		int numExams = 0, numQuizzes = 0, numHW = 0, numLabs = 0, numOther = 0;
 		
-		ArrayList<Assignment> currStudAssignments = getStudentAssignments(userStudent);
+		for(int i = 0; i < this.assignmentList.size(); i++){
+			ArrayList<Assignment>  currAssignment = this.assignmentList.get(i);
 			
-		for(int i = 0; i < currStudAssignments.size(); i++){
 			switch(this.assignmentList.get(i).get(0).getAssignmentType()){
 			case 'F':
-				finalGrade += (double)(currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade());
+				finalGrade += getAssignmentAvg(currAssignment.get(0).getAssignmentName()) / currAssignment.get(0).getMaxGrade();
+				break;
 			case 'E':
-				exams += (double)(currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade());
+				exams += getAssignmentAvg(currAssignment.get(0).getAssignmentName()) / currAssignment.get(0).getMaxGrade();
+				numExams++;
+				break;
 			case 'Q':
-				quizzes += (double)(currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade());
+				quizzes += getAssignmentAvg(currAssignment.get(0).getAssignmentName()) / currAssignment.get(0).getMaxGrade();
+				numQuizzes++;
+				break;
 			case 'L':
-				HW += (double)(currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade());
+				HW += getAssignmentAvg(currAssignment.get(0).getAssignmentName()) / currAssignment.get(0).getMaxGrade();
+				numHW++;
+				break;
 			case 'H':
-				labs += (double)(currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade());
+				labs += getAssignmentAvg(currAssignment.get(0).getAssignmentName()) / currAssignment.get(0).getMaxGrade();
+				numLabs++;
+				break;
 			case 'O':
-				other += (double)(currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade());
+				other += getAssignmentAvg(currAssignment.get(0).getAssignmentName()) / currAssignment.get(0).getMaxGrade();
+				numOther++;
+				break;
 			}
 		}
 		
-		double studGrade = (exams * classSyllabus.getExamWeight()/ classSyllabus.getNumExams()) 
-				+ (quizzes * classSyllabus.getQuizWeight() / classSyllabus.getNumQuizes())
-				+ (HW * classSyllabus.getHWWeight() / classSyllabus.getNumHW())
-				+ (labs * classSyllabus.getLabWeight() / classSyllabus.getNumLabs())
-				+ (other * classSyllabus.getOtherWeight() / classSyllabus.getNumOther())
-				+ finalGrade * classSyllabus.getFinalWeight();
 		
+		if(numExams != 0){
+			exams = (exams * classSyllabus.getExamWeight()) / numExams;
+		}
+		if(numQuizzes != 0){
+			quizzes = (quizzes * classSyllabus.getQuizWeight()) / numQuizzes;
+		}
+		if(numHW != 0){
+			HW = (HW * classSyllabus.getHWWeight()) / numHW;
+		}
+		if(numLabs != 0){
+			labs = (labs * classSyllabus.getLabWeight()) / numLabs;
+		}
+		if(numOther != 0){
+			other = (other * classSyllabus.getOtherWeight()) / numOther;
+		}
+		finalGrade = finalGrade * classSyllabus.getFinalWeight();
 		
-		return studGrade;
+		double grade = exams + quizzes + HW + labs + other + finalGrade;
+		
+		return grade;
 	}
 	
-	public double getClassAvg(){
+	//geets average grade for single assignment
+	public double getAssignmentAvg(String assignmentName){
+		ArrayList<Assignment> assignment = getAssignment(assignmentName);
 		double sum = 0;
-		for(int i = 0; i < this.studentList.size(); i++){
-			sum += this.getStudentGrade(this.studentList.get(i).getStudentName());
+		
+		if(assignment.size() == 1){
+			return 0;
 		}
 		
-		return sum / this.studentList.size();
+		for(int i = 1; i < assignment.size(); i++){
+			sum = sum + assignment.get(i).getReceivedGrade();
+		}
+		return sum / (assignment.size() - 1);
+	}
+	
+	//gets grade avg for every assignment and puts them together
+	public double getStudentGrade(String studentName){
+		double finalGrade = 0, exams = 0, quizzes = 0, HW = 0, labs = 0, other = 0;
+		int numExams = 0, numQuizzes = 0, numHW = 0, numLabs = 0, numOther = 0;
+		
+		ArrayList<Assignment> currStudAssignments = getStudentAssignments(studentName);
+		
+		for(int i = 0; i < currStudAssignments.size(); i++){
+			switch(currStudAssignments.get(i).getAssignmentType()){
+			case 'F':
+				finalGrade += currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade();
+				break;
+			case 'E':
+				exams += currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade();
+				numExams++;
+				break;
+			case 'Q':
+				quizzes += currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade();
+				numQuizzes++;
+				break;
+			case 'L':
+				HW += currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade();
+				numHW++;
+				break;
+			case 'H':
+				labs += currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade();
+				numLabs++;
+				break;
+			case 'O':
+				other += currStudAssignments.get(i).getReceivedGrade()/currStudAssignments.get(i).getMaxGrade();
+				numOther++;
+				break;
+			}
+		}
+		
+		//System.out.println(exams + " " + quizzes + " " + HW + " " + labs + " " + other + " " + finalGrade);
+		
+		
+		if(numExams != 0){
+			exams = (exams * classSyllabus.getExamWeight()) / numExams;
+		}
+		if(numQuizzes != 0){
+			quizzes = (quizzes * classSyllabus.getQuizWeight()) / numQuizzes;
+		}
+		if(numHW != 0){
+			HW = (HW * classSyllabus.getHWWeight()) / numHW;
+		}
+		if(numLabs != 0){
+			labs = (labs * classSyllabus.getLabWeight()) / numLabs;
+		}
+		if(numOther != 0){
+			other = (other * classSyllabus.getOtherWeight()) / numOther;
+		}
+		finalGrade = finalGrade * classSyllabus.getFinalWeight();
+		
+		
+		double grade = exams + quizzes + HW + labs + other + finalGrade;
+		
+		return grade;
+	}
+	
+	//returns the to string for all of a student's assignments
+	public String studentAssignmentsToString(String studentName){
+		String ret = "";
+		ArrayList<Assignment> assignments = getStudentAssignments(studentName);
+		
+		for(int i = 0; i < assignments.size(); i++){
+			ret = assignments.get(i).toString() + "\n";
+		}
+		
+		return ret;
+	}
+	
+	//returns string of all items in one assignment
+	public String assignmentToString(String assignmentName){
+		String ret = "";
+		ArrayList<Assignment> assignment = getAssignment(assignmentName);
+		
+		for(int i = 1; i < assignment.size(); i++){
+			ret = ret + assignment.get(i).toString() + "\n";
+		}
+		
+		return  ret;
+	}
+	
+	//returns string of all assignments in this course
+	public String allAssignmentsToString(){
+		String ret = "";
+		
+		for(int i = 0; i < this.assignmentList.size(); i++){
+			ret = ret + assignmentToString(this.assignmentList.get(i).get(0).getAssignmentName());
+		}
+		
+		return ret;
+	}
+	
+	//returns all information for this course and its assignments
+	public String toString(){
+		return this.courseNum + "-" + this.prof.getProfName() + "\n" + 
+				this.courseName + "\n\n" + allAssignmentsToString() + "Class Avg:  " + getClassAvg() + "\n";			
+	}
+	
+	//lists all students
+	public String studentListToString(){
+		String ret = "";
+		for(int i = 0; i < this.studentList.size(); i++){
+			ret = ret + this.studentList.get(i).getUsername() + "\n";
+		}
+		return ret;
 	}
 }

@@ -6,15 +6,18 @@ public class Assignment {
 	private char assignmentType;
 	private String studentName;
 	
+	//constructors
 	Assignment(){
 	}
 	
-	Assignment(String assignmentName, char assignmentType, int maxGrade){
+	Assignment(String studentName, String assignmentName, char assignmentType, int maxGrade){
+		this.studentName = studentName;
 		this.assignmentName = assignmentName;
 		this.assignmentType = assignmentType;
 		this.maxGrade = maxGrade;
 	}
 
+	//setters and getters
 	public int getReceivedGrade() {
 		return receivedGrade;
 	}
@@ -54,18 +57,12 @@ public class Assignment {
 	public void setStudentName(String studentName) {
 		this.studentName = studentName;
 	}
+
 	
-	public Assignment makeStudentAssignment(Assignment origAssignment, String studentName){
-		if(origAssignment == null){
-			return null;
-		}
-		
-		Assignment studentAssignment = new Assignment(
-				origAssignment.getAssignmentName(),
-				origAssignment.getAssignmentType(),
-				origAssignment.getMaxGrade());
-		studentAssignment.setStudentName(studentName);
-		
-		return studentAssignment;
+	//toString
+	public String toString(){
+		return this.assignmentName + "(" + this.assignmentType + "):\n" + 
+				this.studentName + "\n" +
+				this.receivedGrade + "/" + this.maxGrade + "\n";
 	}
 }
